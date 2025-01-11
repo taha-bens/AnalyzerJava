@@ -5,10 +5,27 @@ package projet;
 
 
 import org.junit.jupiter.api.Test;
+
+import projet.textanalyzer.NGram;
+
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Map;
 
 class AppTest {
     @Test void appHasAGreeting() {
         App classUnderTest = new App();
     }
+
+    @Test void testNGram() {
+        String text = "test ngram";
+        int nGramSize = 3;
+        Map<String, Integer> nGrams = NGram.analyzeNGrams(text, nGramSize);
+        //assertEquals(8, nGrams.size());
+        assertEquals(1, nGrams.get("tes"));
+        assertEquals(1, nGrams.get("est"));
+       // assertEquals(1, nGrams.get("st "));
+    }
+
+
 }

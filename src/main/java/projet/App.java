@@ -1,7 +1,11 @@
 package projet;
 
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import projet.textanalyzer.EvaluateurClavier;
 import projet.textanalyzer.TextAnalyzer;
 
 public class App {
@@ -9,15 +13,16 @@ public class App {
     public static void main(String[] args) throws Exception {
         int nGramSize = 2;
         String path = "src/main/resources/corpus.txt";
-        TextAnalyzer textAnalyzer = new TextAnalyzer(nGramSize);
+        TextAnalyzer textAnalyzer = new TextAnalyzer();
+        Map<String, Integer> nGrams = textAnalyzer.analyzeFile(path, nGramSize);
 
-        Map<String, Integer> nGrams = textAnalyzer.analyzeFile(path);
 
-        nGrams.forEach((nGram, frequency) -> {
-            if (frequency > 1500) {
-                
-                System.out.println(nGram + ": " + frequency);
-            }
-        });
+        // Print sorted n-grams
+        nGrams.forEach((key, value) -> {
+            System.out.println(String.format("%s: %d", key, value));
+            System.out.println(EvaluateurClavier.calculateTypingDistance(key));
+        }
+        );
+       
     }
 }
