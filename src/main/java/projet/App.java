@@ -13,7 +13,7 @@ public class App {
 
     public static void main(String[] args) throws Exception {
         int nGramSize = 2;
-        String path = "src/main/resources/corpus.txt";
+        String path = "src/main/resources/corpus2.txt";
         TextAnalyzer textAnalyzer = new TextAnalyzer();
         EvaluateurClavier clavier = new EvaluateurClavier();
         Map<String, Integer> nGrams = textAnalyzer.analyzeFile(path, nGramSize);
