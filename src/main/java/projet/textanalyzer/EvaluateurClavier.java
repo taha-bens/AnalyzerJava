@@ -41,6 +41,11 @@ public class EvaluateurClavier {
         return totalDistance;
     }
 
+    public double calculateScore(Map<Movements, Integer> movementStats) {
+        return movementStats.entrySet().stream()
+                .mapToDouble(entry -> entry.getKey().getWeight() * entry.getValue()).sum();
+    }
+
     // analyseur de mouvements avec les n-grammes donnés
     public Map<Movements, Integer> analyze(Map<String, Integer> nGrams) {
         // Map avec les différents mouvements analysés et leurs occurrences.

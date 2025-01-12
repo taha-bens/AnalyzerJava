@@ -13,11 +13,12 @@ public class App {
 
     public static void main(String[] args) throws Exception {
         int nGramSize = 2;
-        String path = "src/main/resources/corpus2.txt";
+        String path = "src/main/resources/corpus.txt";
         TextAnalyzer textAnalyzer = new TextAnalyzer();
         EvaluateurClavier clavier = new EvaluateurClavier();
         Map<String, Integer> nGrams = textAnalyzer.analyzeFile(path, nGramSize);
         Map<Movements, Integer> moves = clavier.analyze(nGrams);
+        double score = clavier.calculateScore(moves);
 
         // Print sorted n-grams
         nGrams.forEach((key, value) -> {
@@ -31,6 +32,7 @@ public class App {
         moves.forEach((key, val) -> {
             System.out.println("Mouvement : " + key + ", occurrence du mouvement : " + val);
         });
-       
+
+        System.out.println("Score final de la disposition : " + score);
     }
 }
