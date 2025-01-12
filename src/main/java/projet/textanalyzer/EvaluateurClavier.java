@@ -80,34 +80,84 @@ public class EvaluateurClavier {
             String nGram = entry.getKey();
             int freq = entry.getValue();
 
-            //TEST SUR BIGRAMMES UNIQUEMENT POUR LE MOMENT
-            if (nGram.length() != 2) {
+
+            if (nGram.length() != 2 && nGram.length() != 3) {
                 continue;
             }
 
-            // disposition pour bigrammes uniquement
-            char fst = nGram.charAt(0);
-            char snd = nGram.charAt(1);
-            // si les caracteres ne sont pas reconnus → ignorer
-            if (!KEY_COORDINATES.containsKey(fst) || !KEY_COORDINATES.containsKey(snd)) continue;
+            if (!KEY_COORDINATES.containsKey(nGram.charAt(0)) || !KEY_COORDINATES.containsKey(nGram.charAt(1))) {
+                continue;
+            }
 
-            FingerInfo f1 = KEY_HAND.get(fst);
-            FingerInfo f2 = KEY_HAND.get(snd);
+            if (nGram.length() == 3) {
+                if (KEY_COORDINATES.containsKey(nGram.charAt(2))) break;
+                // coupe le trigramme en deux bigrammes
+                /*String fstBiGram = nGram.substring(0,2);
+                String sndBiGram = nGram.substring(1,3);
 
-            if (f1.equals(f2))
-                movementStats.put(Movements.SFB, movementStats.getOrDefault(Movements.SFB, 0) + freq);
+                analyzeBiGram(fstBiGram, freq, movementStats);
+                analyzeBiGram(sndBiGram, freq, movementStats);*/
+                analyzeTriGram(nGram, freq, movementStats);
+            } else {
+                analyzeBiGram(nGram, freq, movementStats);
+            }
+        }
+        return movementStats;
+    }
 
-            else if (f1.getHand() == f2.getHand() && KEY_COORDINATES.get(fst)[1] != KEY_COORDINATES.get(snd)[1])
-                movementStats.put(Movements.SCISSORS, movementStats.getOrDefault(Movements.SCISSORS, 0) + freq);
+    public void analyzeTriGram(String triGram, int freq, Map<Movements, Integer> movementStats) {
+        char fst = triGram.charAt(0);
+        char snd = triGram.charAt(1);
+        char trd = triGram.charAt(2);
 
-            // manque mouvements LBS et roulements
-            else if (f1.getHand() != f2.getHand())
-                movementStats.put(Movements.ALTERNATIONS, movementStats.getOrDefault(Movements.ALTERNATIONS, 0) + freq);
+        FingerInfo f1 = KEY_HAND.get(fst);
+        FingerInfo f2 = KEY_HAND.get(snd);
+        FingerInfo f3 = KEY_HAND.get(trd);
 
+        if (f1.equalHands(f3) && f1.equalFingers(f3) && !f2.equalHands(f1))
+            movementStats.put(Movements.SKS, movementStats.getOrDefault(Movements.SKS, 0) + freq);
+
+        if (f1.equalHands(f2, f3) && ((f1.getFinger() < f2.getFinger() && f2.getFinger() > f3.getFinger()) || (f1.getFinger() > f2.getFinger() && f2.getFinger() < f3.getFinger()))) {
+            if (f1.getFinger() != 1 && f2.getFinger() != 1 && f3.getFinger() != 1) {
+                movementStats.put(Movements.RDR_WITHOUT_INDEX, movementStats.getOrDefault(Movements.RDR_WITHOUT_INDEX, 0) + freq);
+            } else {
+                movementStats.put(Movements.REDIRECTION, movementStats.getOrDefault(Movements.REDIRECTION, 0) + freq);
+            }
         }
 
 
-        return movementStats;
+    }
+    public void analyzeBiGram(String biGram, int freq, Map<Movements, Integer> movementStats) {
+        // disposition pour bigrammes uniquement
+        char fst = biGram.charAt(0);
+        char snd = biGram.charAt(1);
+
+        FingerInfo f1 = KEY_HAND.get(fst);
+        FingerInfo f2 = KEY_HAND.get(snd);
+
+        // SFB : enchainement de deux touches avec le même doigt
+        if (f1.equalHands(f2) && f1.equalFingers(f2))
+            movementStats.put(Movements.SFB, movementStats.getOrDefault(Movements.SFB, 0) + freq);
+
+        // LSB : enchainement de deux touches du même doigt sur deux rangées différentes
+        if (f1.equalHands(f2) && f1.equalFingers(f2) && KEY_COORDINATES.get(fst)[1] != KEY_COORDINATES.get(snd)[1])
+            movementStats.put(Movements.LSB, movementStats.getOrDefault(Movements.LSB, 0) + freq);
+
+        // Ciseaux : enchainement de deux touches de la même main sur deux rangées différentes
+        if (f1.equalHands(f2) && KEY_COORDINATES.get(fst)[1] != KEY_COORDINATES.get(snd)[1])
+            movementStats.put(Movements.SCISSORS, movementStats.getOrDefault(Movements.SCISSORS, 0) + freq);
+
+        // Alternances : mouvement de deux touches des deux mains (main droite ensuite gauche ou main gauche ensuite droite)
+        if (!f1.equalHands(f2))
+            movementStats.put(Movements.ALTERNATIONS, movementStats.getOrDefault(Movements.ALTERNATIONS, 0) + freq);
+
+        // Roulement intérieur : mouvement de deux touches de deux doigts qui vont de l'auriculaire vers l'index
+        if (f1.equalHands(f2) && f1.getFinger() > f2.getFinger())
+            movementStats.put(Movements.INSIDE_ROLLING, movementStats.getOrDefault(Movements.INSIDE_ROLLING, 0) + freq);
+
+        // Roulement extérieur : même principe que le roulement intérieur, mais de l'index vers l'auriculaire (un peu moins confortable)
+        if (f1.equalHands(f2) && f1.getFinger() < f2.getFinger())
+            movementStats.put(Movements.OUTSIDE_ROLLING, movementStats.getOrDefault(Movements.OUTSIDE_ROLLING, 0) + freq);
     }
 
 }

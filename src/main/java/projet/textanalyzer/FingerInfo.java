@@ -13,4 +13,15 @@ public class FingerInfo {
     public char getHand() { return hand; }
     public String toString() { return finger + "" + hand; }
 
+    public boolean equalHands(FingerInfo f) {
+        return f.hand == this.hand;
+    }
+    public boolean equalHands(FingerInfo f1, FingerInfo f2) {
+        return (this.hand == f1.hand) == (this.hand == f2.hand);
+    }
+    public boolean equalFingers(FingerInfo f) {
+        return f.finger == this.finger;
+    }
+
+
 }
